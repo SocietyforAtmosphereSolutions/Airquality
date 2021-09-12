@@ -1,0 +1,24 @@
+{
+  "Regions":[
+    {
+      "Name": "Sunshine Coast",
+      "Stations": [1314, 1068, 1086, 1310, 1072, 1294, 1298, 1080]
+    },
+    {
+      "Name": "North",
+      "Stations":[25391]
+    },
+    {
+      "Name": "Prince George",
+      "Stations":[27749]
+    },
+    {
+      "Name": "Interior",
+      "Stations":[2225]
+    },
+    {
+      "Name": "Island",
+      "Stations":[24443]
+    }
+  ]
+}
