@@ -36,7 +36,7 @@ function openPopup()
     console.log(menustring);
 }
 
-function ajaxRetrieve()
+function ajaxRetrieve(correction_factor)
 {
 $(document).ready(function() {
     // Variable to hold request
@@ -54,9 +54,11 @@ $(document).ready(function() {
     });
 
     request.done(function (response, textStatus, jqXHR){
-        var correction = Cookies.get('correction_factor');
+        //var correction = Cookies.get('correction_factor');
         var averages = Cookies.get('average');
-        setMarkers(response, correction, averages);
+
+
+        setMarkers(response, correction_factor, averages);
         //console.log(response);
         //console.log("Hooray, it worked!");
     });
@@ -101,84 +103,84 @@ if ((infowindow_status == null) || (typeof infowindow_status == 'undefined'))
     master = values;
 
     var icon_10 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_10.png",
+    url: "Map_Icons/Map_Icon_10.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_20 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_20.png",
+    url: "Map_Icons/Map_Icon_20.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_30 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_30.png",
+    url: "Map_Icons/Map_Icon_30.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_40 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_40.png",
+    url: "Map_Icons/Map_Icon_40.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_50 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_50.png",
+    url: "Map_Icons/Map_Icon_50.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_60 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_60.png",
+    url: "Map_Icons/Map_Icon_60.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_70 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_70.png",
+    url: "Map_Icons/Map_Icon_70.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_80 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_80.png",
+    url: "Map_Icons/Map_Icon_80.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_90 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_90.png",
+    url: "Map_Icons/Map_Icon_90.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_100 = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_100.png",
+    url: "Map_Icons/Map_Icon_100.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_100plus = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_100+.png",
+    url: "Map_Icons/Map_Icon_100+.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
     };
 
     var icon_NA = {
-    url: "https://scairquality.ca/Map_Icons/Map_Icon_NA.png",
+    url: "Map_Icons/Map_Icon_NA.png",
     scaledSize: new google.maps.Size(30, 30),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(15,15)
@@ -307,7 +309,7 @@ if ((infowindow_status == null) || (typeof infowindow_status == 'undefined'))
 
         
 
-        contentstring[i] = "<div id = 'sensor" + master[i][0] + "'> <h3 style = 'margin: 10px; font-size: 1.3em; font-family: 'serif';'>"
+        contentstring[i] = "<div class = 'chart' id = 'sensor" + master[i][0] + "'> <h3 style = 'margin: 10px; font-size: 1.3em; font-family: 'serif';'>"
         + data_pass[i]["Name"] + " (" + data_pass[i]["ID"] + ")</h3>" + message + "<br><b>Chart Data options: </b> &nbsp;" + "<select id = 'time_period'>" +
             "<option hidden value = '_daily'>Averaging Period</option>" + 
             "<option value = '_daily'>Daily</option>" +
@@ -380,7 +382,7 @@ function correctionFactor(value, type)
 {
 var corrected;
 
-if (type == 0)
+if (type == 4)
 {
     corrected = value;
 }
@@ -394,7 +396,7 @@ else if (type == 1)
     else
     {
         corrected = value;
-        console.log("Value did not meet requirements for correction factor")
+        console.log("Value: " + type  + "  did not meet requirements for correction factor")
     }
 }
 else if (type == 2)
@@ -407,9 +409,8 @@ else if (type == 2)
     else
     {
         corrected = value;
-        console.log("Value did not meet requirements for correction factor")
+        console.log("Value: " + type  + "  did not meet requirements for correction factor")
     }
-
 }
 else if (type == 3)
 {
@@ -421,15 +422,15 @@ else if (type == 3)
     else
     {
         corrected = value;
-        console.log("Value did not meet requirements for correction factor")
+        console.log("Value: " + type  + "  did not meet requirements for correction factor")
     }
 
 }
-else if (type == 4)
+else if (type == 0)
 {
     //UNBC y = 0.68x + 1.91 (0-20 ug/m3)
     //UNBC y = 0.87x - 6.62 (>20 ug/m3)
-    if (value < 20)
+    if (value <= 20)
     {
         corrected = Math.round(((0.68 * value) + 1.91) * 10) / 10;
     }
@@ -440,12 +441,26 @@ else if (type == 4)
     else
     {
         corrected = value;
-        console.log("Value did not meet requirements for correction factor")
+        console.log("Value: " + type  + "  did not meet requirements for correction factor")
     }
 }
 else
-{
-    corrected = value;
+{ 
+    //UNBC y = 0.68x + 1.91 (0-20 ug/m3)
+    //UNBC y = 0.87x - 6.62 (>20 ug/m3)
+    if (value <= 20)
+    {
+        corrected = Math.round(((0.68 * value) + 1.91) * 10) / 10;
+    }
+    else if (value > 20)
+    {
+        corrected = Math.round(((0.87 * value) - 6.62) * 10) / 10;
+    }
+    else
+    {
+        corrected = value;
+        console.log("Value: " + type  + "  did not meet requirements for correction factor")
+    }
 }
 
 return corrected;
@@ -517,7 +532,7 @@ function drawChart(sensor, element, data, zoom)
         },
         yAxis: {
             title: {
-                    text: 'Air Qualiy (&#181g/m<sup>-3</sup>)',
+                    text: 'PM<sup>2.5</sup> (&#181g/m<sup>3</sup>)',//'Air Qualiy (&#181g/m<sup>-3</sup>)',
                     type: 'linear',
                     tickInterval: 1,
                     useHTML: true
