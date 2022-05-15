@@ -19,7 +19,7 @@
     <select id = 'region' name = 'region' class = 'option' style = 'margin-top: 30px;'>
       <option>Select Region:</option>
       <?php
-          $monitor_list = file_get_contents('/home/legal-server/python_code/monitor_list.json');
+          $monitor_list = file_get_contents('Python/monitor_list.json');
           $region_array = json_decode($monitor_list, true);
           $array = $region_array["Regions"];
           $x = count($array);

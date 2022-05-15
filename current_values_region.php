@@ -70,7 +70,7 @@
     <form action = 'current_values_region.php' name = 'select' method = 'post'/>
         <p>Select Region:</p>
         <?php
-            $monitor_list = file_get_contents('/home/legal-server/python_code/monitor_list.json');
+            $monitor_list = file_get_contents('Python/monitor_list.json');
             $region_array = json_decode($monitor_list, true);
             $array = $region_array["Regions"];
 

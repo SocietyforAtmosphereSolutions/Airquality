@@ -94,7 +94,7 @@ else:
 ##########################################################################
 # opens JSON file as a readable string and assigns the
 # region list to a variable
-monitor_list = open("/home/legal-server/python_code/monitor_list.json", "r")
+monitor_list = open("/var/www/html/scairquality.ca/public_html/Python/monitor_list.json", "r")
 region_list = json.loads(monitor_list.read())
 ID_list = region_list["Regions"]
 total_ids = []
