@@ -71,7 +71,14 @@ from datetime import datetime
 #    database to store the current purple air data to.
 #
 ##########################################################################
-TABLE_NAME = "monitor_readings"
+TABLE_NAME = ""
+
+if len(sys.argv) != 2:
+    print("Invalid number of arguments!")
+    print("  USAGE: script.py table_name")
+    exit()
+else:
+    TABLE_NAME = sys.argv[1]
 
 
 
@@ -194,10 +201,10 @@ MYSQL = MYSQL + "AGE INT" + ", "
 # MYSQL = MYSQL + "v FLOAT" + ", "  # - Current Value
 # MYSQL = MYSQL + "v1 FLOAT" + ", "  # - 10 Min Avg
 # MYSQL = MYSQL + "v2 FLOAT" + ", "  # - 30 Min Avg
-MYSQL = MYSQL + "v3 FLOAT" + ", "  # - 1 Hr Avg
-MYSQL = MYSQL + "v4 FLOAT" + ", "  # - 6 Hr Avg
-MYSQL = MYSQL + "v5 FLOAT" + ", "  # - 24 Hr Avg
-MYSQL = MYSQL + "v6 FLOAT" + ", "  # - 1 Wk Avg
+#MYSQL = MYSQL + "v3 FLOAT" + ", "  # - 1 Hr Avg
+#MYSQL = MYSQL + "v4 FLOAT" + ", "  # - 6 Hr Avg
+#MYSQL = MYSQL + "v5 FLOAT" + ", "  # - 24 Hr Avg
+#MYSQL = MYSQL + "v6 FLOAT" + ", "  # - 1 Wk Avg
 # MYSQL = MYSQL + "pm FLOAT" + ", "  # - Current Value
 MYSQL = MYSQL + "lastModified DATETIME" + ") "
 # MYSQL = MYSQL + "timeSinceModified BIGINT" + ")"
@@ -236,7 +243,7 @@ for monitor in monitor_array:
     print("MONITOR REGION IS:", monitor_region)
 
     # Create SQL string to insert a row into the database table.
-    sql = "INSERT INTO " + TABLE_NAME + " (ID, ParentID, Label, Lat, Lon, PM2_5Value, Flag, AGE, v3, v4, v5, v6, lastModified, Region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO " + TABLE_NAME + " (ID, ParentID, Label, Lat, Lon, PM2_5Value, Flag, AGE, lastModified, Region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     
     # Create a list of the data we are going to insert into the table.
     val = (
@@ -248,10 +255,6 @@ for monitor in monitor_array:
             str(monitor.get("PM2_5Value", 0)), 
             str(monitor.get("Flag", "null")), 
             str(monitor.get("AGE", 0)), 
-            str(monitor.get("v3", 0)), 
-            str(monitor.get("v4", 0)), 
-            str(monitor.get("v5", 0)), 
-            str(monitor.get("v6", 0)),
             dt,
             str(monitor_region))
 
