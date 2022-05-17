@@ -42,13 +42,8 @@ for table_name in mycursor:
 
 MYSQL = "CREATE TABLE " + TABLE_NAME + " ("
 MYSQL = MYSQL + "ID INT" + ", "
-MYSQL = MYSQL + "Region VARCHAR(128)" + ", "
-MYSQL = MYSQL + "Label VARCHAR(128)" + ", "
-MYSQL = MYSQL + "Lat FLOAT" + ", "
-MYSQL = MYSQL + "Lon FLOAT" + ", "
 MYSQL = MYSQL + "AChannel FLOAT" + ", "
 MYSQL = MYSQL + "BChannel FLOAT" + ", "
-MYSQL = MYSQL + "Flag VARCHAR(10)" + ", "
 MYSQL = MYSQL + "AGE INT" + ", "
 MYSQL = MYSQL + "lastModified DATETIME" + ", "
 MYSQL = MYSQL + "UNIQUE KEY `ID` (`ID`,`lastModified`));"
@@ -58,7 +53,6 @@ MYSQL = MYSQL + "UNIQUE KEY `ID` (`ID`,`lastModified`));"
 # Create the table in the database using the mysql command from above.
 if not table_exists:
     mycursor.execute(MYSQL)
-    #mycursor.execute(ALTER)
     print("Create Table: ", TABLE_NAME)
 
 # opens JSON file as a readable string and assigns the
@@ -82,7 +76,7 @@ for tableid in sensor_list:
 
   #sql = "SELECT * FROM monitor_data WHERE ID = " + str(tableid) + " OR ParentID =" + str(tableid) + ";"
 
-  sql = "SELECT ID, ParentID, Label, ROUND(AVG(PM2_5Value), 2) AS Average, ROUND(MAX(PM2_5Value), 2) AS Maximum, lastModified, Lat, Lon, Flag, AGE, Region FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
+  sql = "SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, ROUND(MAX(PM2_5Value), 2) AS Maximum, lastModified, AGE FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
       
   mycursor.execute(sql)
 
@@ -101,12 +95,7 @@ for tableid in sensor_list:
     x = {}
     if int(i["ID"]) == int(tableid):
       x["ID"] = i["ID"]
-      x["Label"] = i["Label"]
-      x["Lat"] = i["Lat"]
-      x["Lon"] = i["Lon"]
-      x["Flag"] = i["Flag"]
       x["AGE"] = i["AGE"]
-      x["Region"] = i["Region"]
       x["AChannel"] = i["Average"]
       x["BChannel"] = b["Average"]
       x["lastModified"] = i["lastModified"]
@@ -117,16 +106,11 @@ for tableid in sensor_list:
   print("Completed data collection for sensor #" + str(tableid))
 
   for monitor in output_data:
-    sql2 = "INSERT IGNORE INTO " + TABLE_NAME + " (ID, Label, Region, AChannel, BChannel, Lat, Lon, Flag, AGE, lastModified) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql2 = "INSERT IGNORE INTO " + TABLE_NAME + " (ID, AChannel, BChannel, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
     val = (
       str(monitor.get("ID", "0")),
-      monitor.get("Label", "null"),
-      monitor.get("Region", "null"),
       str(monitor.get("AChannel", 0)), 
       str(monitor.get("BChannel", 0)),
-      str(monitor.get("Lat", 0)),
-      str(monitor.get("Lon", 0)),
-      str(monitor.get("Flag", "null")),
       str(monitor.get("AGE", 0)), 
       str(monitor.get("lastModified", "null")))
 

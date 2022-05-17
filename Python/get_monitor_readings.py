@@ -169,22 +169,22 @@ for table_name in mycursor:
 # but with more fields of course.
 MYSQL = "CREATE TABLE " + TABLE_NAME + " ("
 MYSQL = MYSQL + "ID INT" + ", "
-MYSQL = MYSQL + "Region VARCHAR(128)" + ", "
+#MYSQL = MYSQL + "Region VARCHAR(128)" + ", "
 MYSQL = MYSQL + "ParentID VARCHAR(10)" + ", "
-MYSQL = MYSQL + "Label VARCHAR(128)" + ", "
+#MYSQL = MYSQL + "Label VARCHAR(128)" + ", "
 #    - DEVICE_LOCATIONTYPE - <NOT USED> - maybe VARCHAR(20)
 # MYSQL = MYSQL + "THINGSPEAK_PRIMARY_ID INT" + ", "
 # MYSQL = MYSQL + "THINGSPEAK_PRIMARY_ID_READ_KEY VARCHAR(20)" + ", "
 # MYSQL = MYSQL + "THINGSPEAK_SECONDARY_ID INT" + ", "
 # MYSQL = MYSQL + "THINGSPEAK_SECONDARY_ID_READ_KEY VARCHAR(20)" + ", "
-MYSQL = MYSQL + "Lat FLOAT" + ", "
-MYSQL = MYSQL + "Lon FLOAT" + ", "
+#MYSQL = MYSQL + "Lat FLOAT" + ", "
+#MYSQL = MYSQL + "Lon FLOAT" + ", "
 MYSQL = MYSQL + "PM2_5Value FLOAT" + ", "
 #MYSQL = MYSQL + "LastSeen DATETIME" + ", "
 #    - State - <NOT USED> - maybe VARCHAR(20)
 # MYSQL = MYSQL + "Type VARCHAR(64)" + ", "
 # MYSQL = MYSQL + "Hidden VARCHAR(10)" + ", "
-MYSQL = MYSQL + "Flag VARCHAR(10)" + ", "
+#MYSQL = MYSQL + "Flag VARCHAR(10)" + ", "
 #    - DEVICE_BRIGHTNESS - <NOT USED> - maybe VARCHAR(20)
 #    - DEVICE_HARDWAREDISCOVERED - <NOT USED> - maybe VARCHAR(128)
 #    - DEVICE_FIRMWAREVERSION - <NOT USED> - maybe VARCHAR(20)
@@ -243,20 +243,15 @@ for monitor in monitor_array:
     print("MONITOR REGION IS:", monitor_region)
 
     # Create SQL string to insert a row into the database table.
-    sql = "INSERT INTO " + TABLE_NAME + " (ID, ParentID, Label, Lat, Lon, PM2_5Value, Flag, AGE, lastModified, Region) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO " + TABLE_NAME + " (ID, ParentID, PM2_5Value, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
     
     # Create a list of the data we are going to insert into the table.
     val = (
             str(monitor.get("ID", 0)), 
-            str(monitor.get("ParentID", "null")), 
-            monitor.get("Label", "null"), 
-            str(monitor.get("Lat", 0)), 
-            str(monitor.get("Lon", 0)), 
-            str(monitor.get("PM2_5Value", 0)), 
-            str(monitor.get("Flag", "null")), 
+            str(monitor.get("ParentID", "null")),
+            str(monitor.get("PM2_5Value", 0)),
             str(monitor.get("AGE", 0)), 
-            dt,
-            str(monitor_region))
+            dt)
 
     # Insert the data into the table.
     print("**********************INSERTING DATA**********************\n", sql, val)
