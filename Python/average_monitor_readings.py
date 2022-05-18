@@ -28,32 +28,21 @@ def dropTable(table):
 #    database to store the current purple air data to.
 #
 ##########################################################################
-TABLE_NAME = "hist_monitor_readings"
+TABLE_NAME = "averaged_readings"
 
-SOURCE_NAME = ""
+SOURCE_NAME = "current_readings"
 
-if len(sys.argv) == 2:
-  SOURCE_NAME = sys.argv[1]
-  CURRENT = False
-elif len(sys.argv) == 3:
+
+if len(sys.argv) == 3:
   SOURCE_NAME = sys.argv[1]
   TABLE_NAME = sys.argv[2]
-  CURRENT = False
-elif len(sys.argv) == 4:
-  SOURCE_NAME = sys.argv[1]
-  TABLE_NAME = sys.argv[2]
-  CURRENT = bool(sys.argv[3])
-else:
+elif len(sys.argv) > 3:
   print("Invalid number of arguments!")
-  print("  USAGE: script.py source_table dest_table current_bool")
+  print("  USAGE: script.py source_table dest_table")
   exit()
 
-if CURRENT:
-  dropTable(TABLE_NAME)
-  unique = "UNIQUE (ID));"
-  print("Creating Current Data Table")
-else:
-  unique = "UNIQUE KEY `ID` (`ID`,`lastModified`));"
+dropTable(TABLE_NAME)
+
 
 # Check if the table already exists.
 mycursor.execute("SHOW TABLES")
@@ -65,13 +54,14 @@ for table_name in mycursor:
 
 MYSQL = "CREATE TABLE " + TABLE_NAME + " ("
 MYSQL = MYSQL + "ID INT" + ", "
-MYSQL = MYSQL + "AChannel FLOAT" + ", "
-MYSQL = MYSQL + "BChannel FLOAT" + ", "
+MYSQL = MYSQL + "Region VARCHAR(128)" + ", "
+MYSQL = MYSQL + "Label VARCHAR(128)" + ", "
+MYSQL = MYSQL + "Lat FLOAT" + ", "
+MYSQL = MYSQL + "Lon FLOAT" + ", "
+MYSQL = MYSQL + "PM2_5Value FLOAT" + ", "
 MYSQL = MYSQL + "AGE INT" + ", "
 MYSQL = MYSQL + "lastModified DATETIME" + ", "
-
-#string to change unique key based on if the table should be historical or current
-MYSQL = MYSQL + unique
+MYSQL = MYSQL + "UNIQUE (ID));"
 
 #ALTER = "ALTER TABLE " + TABLE_NAME + " ADD UNIQUE INDEX(ID, lastModified);"
 
@@ -102,14 +92,8 @@ for i in ID_list:
 
 for tableid in sensor_list:
 
-  #sql = "SELECT * FROM monitor_data WHERE ID = " + str(tableid) + " OR ParentID =" + str(tableid) + ";"
-  if CURRENT:
-    sql = "SELECT ID, ParentID, PM2_5Value AS Average, lastModified, AGE FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " ORDER BY LastModified DESC"
-  else:
-    sql = "SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, lastModified, AGE FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
-
-  
-      
+  sql = f"SELECT const_data.ID,  const_data.Label, const_data.Region, {SOURCE_NAME}.AChannel, {SOURCE_NAME}.BChannel, const_data.Lat, const_data.Lon, {SOURCE_NAME}.lastModified, {SOURCE_NAME}.AGE FROM {SOURCE_NAME} INNER JOIN const_data ON {SOURCE_NAME}.ID = const_data.ID WHERE const_data.ID = {str(tableid)};"
+ 
   mycursor.execute(sql)
 
   desc = mycursor.description
@@ -118,36 +102,42 @@ for tableid in sensor_list:
           for row in mycursor.fetchall()]
   output_data = []
 
-  print("Completed SELECT query for sensor #" + str(tableid))
+  print(f"Completed SELECT query for sensor #{str(tableid)}")
 
-  for a in range(0, (len(data) - 1)):
+  for a in range(0, (len(data))):
     i = data[a]
-    b = data[a + 1]
-    print(i, b)
+    print(i)
     x = {}
     if int(i["ID"]) == int(tableid):
       x["ID"] = i["ID"]
+      x["Label"] = i["Label"]
+      x["Region"] = i["Region"]
+      x["Lat"] = i["Lat"]
+      x["Lon"] = i["Lon"]
       x["AGE"] = i["AGE"]
-      x["AChannel"] = i["Average"]
-      x["BChannel"] = b["Average"]
+      x["PM2_5Value"] = ((i["AChannel"] + i ["BChannel"]) / 2) 
       x["lastModified"] = i["lastModified"]
       print("Appending: ", x)
       output_data.append(x)
     
 
-  print("Completed data collection for sensor #" + str(tableid))
+  print(f"Completed data collection for sensor #{str(tableid)}")
 
   for monitor in output_data:
-    sql2 = "INSERT IGNORE INTO " + TABLE_NAME + " (ID, AChannel, BChannel, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
+    sql2 = f"INSERT IGNORE INTO {TABLE_NAME} (ID, Label, Region, PM2_5Value, Lat, Lon, lastModified, AGE) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     val = (
       str(monitor.get("ID", 0)),
-      str(monitor.get("AChannel", -1)), 
-      str(monitor.get("BChannel", -1)),
-      str(monitor.get("AGE", 0)), 
-      str(monitor.get("lastModified", "null")))
+      str(monitor.get("Label", "null")),
+      str(monitor.get("Region", "null")),
+      str(monitor.get("PM2_5Value", -1)), 
+      str(monitor.get("Lat", 0)),
+      str(monitor.get("Lon", 0)),
+      str(monitor.get("lastModified", "null")),
+      str(monitor.get("AGE", 0)))
 
     mycursor.execute(sql2, val)
     mydb.commit()
 
-  print("Completed adding data to individual sensor table for sensor #" + str(tableid))
+  print(f"Completed adding sensor #{str(tableid)} data to averaged data table")
+  
 

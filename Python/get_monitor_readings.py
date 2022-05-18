@@ -94,6 +94,9 @@ region_list = json.loads(monitor_list.read())
 ID_list = region_list["Regions"]
 total_ids = []
 
+# Closes monitor list JSON to avoid memory leaks
+monitor_list.close()
+
 # concatenates all monitor ids from the region list into one variable
 for i in ID_list:
     for x in i["Stations"]:
@@ -249,7 +252,7 @@ for monitor in monitor_array:
     val = (
             str(monitor.get("ID", 0)), 
             str(monitor.get("ParentID", "null")),
-            str(monitor.get("PM2_5Value", 0)),
+            str(monitor.get("PM2_5Value", -1)),
             str(monitor.get("AGE", 0)), 
             dt)
 
@@ -257,6 +260,3 @@ for monitor in monitor_array:
     print("**********************INSERTING DATA**********************\n", sql, val)
     mycursor.execute(sql, val)
     mydb.commit()
-
-# Closes monitor list JSON to avoid memory leaks
-monitor_list.close()
