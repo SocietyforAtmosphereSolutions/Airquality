@@ -124,7 +124,7 @@ for tableid in sensor_list:
   print(f"Completed data collection for sensor #{str(tableid)}")
 
   for monitor in output_data:
-    sql2 = f"INSERT IGNORE INTO {TABLE_NAME} (ID, Label, Region, PM2_5Value, Lat, Lon, lastModified, AGE) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    sql2 = "INSERT IGNORE INTO " + TABLE_NAME + " (ID, Label, Region, PM2_5Value, Lat, Lon, lastModified, AGE) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     val = (
       str(monitor.get("ID", 0)),
       str(monitor.get("Label", "null")),

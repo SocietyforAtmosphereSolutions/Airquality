@@ -15,7 +15,7 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 def dropTable(table):
-  sql_del = "DROP TABLE IF EXISTS " + table
+  sql_del = f"DROP TABLE IF EXISTS {table}"
   print(sql_del)
   mycursor.execute(sql_del)
   mydb.commit()
@@ -104,9 +104,9 @@ for tableid in sensor_list:
 
   #sql = "SELECT * FROM monitor_data WHERE ID = " + str(tableid) + " OR ParentID =" + str(tableid) + ";"
   if CURRENT:
-    sql = "SELECT ID, ParentID, PM2_5Value AS Average, lastModified, AGE FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " ORDER BY LastModified DESC"
+    sql = f"SELECT ID, ParentID, PM2_5Value AS Average, lastModified, AGE FROM {SOURCE_NAME} WHERE id = {str(tableid)} OR ParentID = {str(tableid)} ORDER BY LastModified DESC"
   else:
-    sql = "SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, lastModified, AGE FROM " + SOURCE_NAME + " WHERE id =" + str(tableid) + " OR ParentID = " + str(tableid) + " GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
+    sql = f"SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, lastModified, AGE FROM {SOURCE_NAME} WHERE id = {str(tableid)} OR ParentID = {str(tableid)} GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
 
   
       
@@ -118,7 +118,7 @@ for tableid in sensor_list:
           for row in mycursor.fetchall()]
   output_data = []
 
-  print("Completed SELECT query for sensor #" + str(tableid))
+  print(f"Completed SELECT query for sensor #{str(tableid)}")
 
   for a in range(0, (len(data) - 1)):
     i = data[a]
@@ -135,7 +135,7 @@ for tableid in sensor_list:
       output_data.append(x)
     
 
-  print("Completed data collection for sensor #" + str(tableid))
+  print(f"Completed data collection for sensor #{str(tableid)}")
 
   for monitor in output_data:
     sql2 = "INSERT IGNORE INTO " + TABLE_NAME + " (ID, AChannel, BChannel, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
@@ -149,5 +149,5 @@ for tableid in sensor_list:
     mycursor.execute(sql2, val)
     mydb.commit()
 
-  print("Completed adding data to individual sensor table for sensor #" + str(tableid))
+  print(f"Completed adding data to individual sensor table for sensor #{str(tableid)}")
 

@@ -46,9 +46,9 @@ else:
 
 for tableid in sensor_list:
 
-  sensor_table = "sensor" + str(tableid) + "_daily"
+  sensor_table = f"sensor{str(tableid)}_daily"
 
-  sql = "SELECT ROUND(AVG(AChannel), 2) AS AverageA, ROUND(AVG(BChannel), 2) AS AverageB, lastModified FROM hist_monitor_readings WHERE id = " + str(tableid) + " GROUP BY id, YEAR(LastModified), MONTH(LastModified), DAY(LastModified) ORDER BY LastModified;"
+  sql = f"SELECT ROUND(AVG(AChannel), 2) AS AverageA, ROUND(AVG(BChannel), 2) AS AverageB, lastModified FROM hist_monitor_readings WHERE id = {str(tableid)} GROUP BY id, YEAR(LastModified), MONTH(LastModified), DAY(LastModified) ORDER BY LastModified;"
       
   mycursor.execute(sql)
 
@@ -58,7 +58,7 @@ for tableid in sensor_list:
           for row in mycursor.fetchall()]
   output_data = []
 
-  print("Completed SELECT query for sensor #" + str(tableid))
+  print(f"Completed SELECT query for sensor #{str(tableid)}")
 
   for a in range(0, len(data)):
     i = data[a]
@@ -69,11 +69,11 @@ for tableid in sensor_list:
     print("Appending: ", x)
     output_data.append(x)
   
-  print("Completed data collection for sensor #" + str(tableid))
+  print(f"Completed data collection for sensor #{str(tableid)}")
 
   dropTable(sensor_table)
 
-  sql2 = "CREATE TABLE " + sensor_table + " (AChannel float, BChannel float, lastModified datetime)"
+  sql2 = f"CREATE TABLE {sensor_table} (AChannel float, BChannel float, lastModified datetime)"
   mycursor.execute(sql2)
   mydb.commit()
 
@@ -83,14 +83,14 @@ for tableid in sensor_list:
 
     mycursor.execute(sql3, val)
     mydb.commit()
-  print("Completed adding data to individual sensor table for sensor #" + str(tableid))
+  print(f"Completed adding data to individual sensor table for sensor #{str(tableid)}")
 
 
 for tableid in sensor_list:
 
-  sensor_table = "sensor" + str(tableid) + "_hourly"
+  sensor_table = f"sensor{str(tableid)}_hourly"
 
-  sql = "SELECT AChannel, BChannel, lastModified FROM hist_monitor_readings WHERE id = " + str(tableid) + " ORDER BY LastModified"
+  sql = f"SELECT AChannel, BChannel, lastModified FROM hist_monitor_readings WHERE id = {str(tableid)} ORDER BY LastModified"
       
   mycursor.execute(sql)
 
@@ -100,7 +100,7 @@ for tableid in sensor_list:
           for row in mycursor.fetchall()]
   output_data = []
 
-  print("Completed SELECT query for sensor #" + str(tableid))
+  print(f"Completed SELECT query for sensor #{str(tableid)}")
 
   for a in range(0, len(data)):
     i = data[a]
@@ -111,11 +111,11 @@ for tableid in sensor_list:
     print("Appending: ", x)
     output_data.append(x)
   
-  print("Completed data collection for sensor #" + str(tableid))
+  print(f"Completed data collection for sensor #{str(tableid)}")
 
   dropTable(sensor_table)
 
-  sql2 = "CREATE TABLE " + sensor_table + " (AChannel float, BChannel float, lastModified datetime)"
+  sql2 = f"CREATE TABLE {sensor_table} (AChannel float, BChannel float, lastModified datetime)"
   mycursor.execute(sql2)
   mydb.commit()
 
@@ -125,5 +125,5 @@ for tableid in sensor_list:
 
     mycursor.execute(sql3, val)
     mydb.commit()
-  print("Completed adding data to individual sensor table for sensor #" + str(tableid))
+  print(f"Completed adding data to individual sensor table for sensor #{str(tableid)}")
     
