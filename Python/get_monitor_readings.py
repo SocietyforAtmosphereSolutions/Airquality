@@ -158,6 +158,12 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
+def dropTable(table):
+  sql_del = f"DROP TABLE IF EXISTS {table}"
+  print(sql_del)
+  mycursor.execute(sql_del)
+  mydb.commit()
+
 # Check if the purpleair table has been created.
 mycursor.execute("SHOW TABLES")
 table_exists = False
@@ -166,56 +172,34 @@ for table_name in mycursor:
         table_exists = True
 
 # Create a string to is the MYSQL command to create the desired table.
-# I will do this one table column at a time so that it is easy to
-# follow.   In the end the create table command should look something
-# like: "CREATE TABLE monitor_data (ID INT, PM2_5 FLOAT, lastModified DATETIME)"
-# but with more fields of course.
 MYSQL = "CREATE TABLE " + TABLE_NAME + " ("
 MYSQL = MYSQL + "ID INT" + ", "
-#MYSQL = MYSQL + "Region VARCHAR(128)" + ", "
 MYSQL = MYSQL + "ParentID VARCHAR(10)" + ", "
-#MYSQL = MYSQL + "Label VARCHAR(128)" + ", "
-#    - DEVICE_LOCATIONTYPE - <NOT USED> - maybe VARCHAR(20)
-# MYSQL = MYSQL + "THINGSPEAK_PRIMARY_ID INT" + ", "
-# MYSQL = MYSQL + "THINGSPEAK_PRIMARY_ID_READ_KEY VARCHAR(20)" + ", "
-# MYSQL = MYSQL + "THINGSPEAK_SECONDARY_ID INT" + ", "
-# MYSQL = MYSQL + "THINGSPEAK_SECONDARY_ID_READ_KEY VARCHAR(20)" + ", "
-#MYSQL = MYSQL + "Lat FLOAT" + ", "
-#MYSQL = MYSQL + "Lon FLOAT" + ", "
 MYSQL = MYSQL + "PM2_5Value FLOAT" + ", "
-#MYSQL = MYSQL + "LastSeen DATETIME" + ", "
-#    - State - <NOT USED> - maybe VARCHAR(20)
-# MYSQL = MYSQL + "Type VARCHAR(64)" + ", "
-# MYSQL = MYSQL + "Hidden VARCHAR(10)" + ", "
-#MYSQL = MYSQL + "Flag VARCHAR(10)" + ", "
-#    - DEVICE_BRIGHTNESS - <NOT USED> - maybe VARCHAR(20)
-#    - DEVICE_HARDWAREDISCOVERED - <NOT USED> - maybe VARCHAR(128)
-#    - DEVICE_FIRMWAREVERSION - <NOT USED> - maybe VARCHAR(20)
-#    - Version - <NOT USED> - maybe VARCHAR(10)
-#    - LastUpdateCheck - <NOT USED> - maybe VARCHAR(20)
-#    - Uptime - <NOT USED> - maybe INT
-#    - RSSI - <NOT USED> - maybe INT
-# MYSQL = MYSQL + "isOwner INT" + ", "
-# MYSQL = MYSQL + "A_H VARCHAR(10)" + ", "
-# MYSQL = MYSQL + "temp_f FLOAT" + ", "
-# MYSQL = MYSQL + "humidity FLOAT" + ", "
-# MYSQL = MYSQL + "pressure FLOAT" + ", "
 MYSQL = MYSQL + "AGE INT" + ", "
-# MYSQL = MYSQL + "v FLOAT" + ", "  # - Current Value
-# MYSQL = MYSQL + "v1 FLOAT" + ", "  # - 10 Min Avg
-# MYSQL = MYSQL + "v2 FLOAT" + ", "  # - 30 Min Avg
-#MYSQL = MYSQL + "v3 FLOAT" + ", "  # - 1 Hr Avg
-#MYSQL = MYSQL + "v4 FLOAT" + ", "  # - 6 Hr Avg
-#MYSQL = MYSQL + "v5 FLOAT" + ", "  # - 24 Hr Avg
-#MYSQL = MYSQL + "v6 FLOAT" + ", "  # - 1 Wk Avg
-# MYSQL = MYSQL + "pm FLOAT" + ", "  # - Current Value
 MYSQL = MYSQL + "lastModified DATETIME" + ") "
-# MYSQL = MYSQL + "timeSinceModified BIGINT" + ")"
 
 # Create the table in the database using the mysql command from above.
 if not table_exists:
     mycursor.execute(MYSQL)
     print("Create Table: ", TABLE_NAME)
+
+
+#Create Current Readings Table
+
+dropTable("current_readings")
+
+# Create a string to is the MYSQL command to create the desired table.
+MYSQL = "CREATE TABLE current_readings ("
+MYSQL = MYSQL + "ID INT" + ", "
+MYSQL = MYSQL + "ParentID VARCHAR(10)" + ", "
+MYSQL = MYSQL + "PM2_5Value FLOAT" + ", "
+MYSQL = MYSQL + "AGE INT" + ", "
+MYSQL = MYSQL + "lastModified DATETIME" + ", "
+MYSQL = MYSQL + "UNIQUE (ID));"
+
+mycursor.execute(MYSQL)
+print("Create Table: ", TABLE_NAME)
 
 
 ##########################################################################
@@ -247,6 +231,7 @@ for monitor in monitor_array:
 
     # Create SQL string to insert a row into the database table.
     sql = "INSERT INTO " + TABLE_NAME + " (ID, ParentID, PM2_5Value, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
+    sql2 = "INSERT INTO current_readings (ID, ParentID, PM2_5Value, AGE, lastModified) VALUES (%s, %s, %s, %s, %s)"
     
     # Create a list of the data we are going to insert into the table.
     val = (
@@ -259,4 +244,9 @@ for monitor in monitor_array:
     # Insert the data into the table.
     print("**********************INSERTING DATA**********************\n", sql, val)
     mycursor.execute(sql, val)
+    mydb.commit()
+
+    # Insert the data into the table.
+    print("**********************INSERTING DATA**********************\n", sql2, val)
+    mycursor.execute(sql2, val)
     mydb.commit()

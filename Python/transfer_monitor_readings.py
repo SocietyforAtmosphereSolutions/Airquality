@@ -34,26 +34,16 @@ SOURCE_NAME = ""
 
 if len(sys.argv) == 2:
   SOURCE_NAME = sys.argv[1]
-  CURRENT = False
 elif len(sys.argv) == 3:
   SOURCE_NAME = sys.argv[1]
   TABLE_NAME = sys.argv[2]
-  CURRENT = False
-elif len(sys.argv) == 4:
-  SOURCE_NAME = sys.argv[1]
-  TABLE_NAME = sys.argv[2]
-  CURRENT = bool(sys.argv[3])
 else:
   print("Invalid number of arguments!")
   print("  USAGE: script.py source_table dest_table current_bool")
   exit()
 
-if CURRENT:
-  dropTable(TABLE_NAME)
-  unique = "UNIQUE (ID));"
-  print("Creating Current Data Table")
-else:
-  unique = "UNIQUE KEY `ID` (`ID`,`lastModified`));"
+
+
 
 # Check if the table already exists.
 mycursor.execute("SHOW TABLES")
@@ -71,7 +61,7 @@ MYSQL = MYSQL + "AGE INT" + ", "
 MYSQL = MYSQL + "lastModified DATETIME" + ", "
 
 #string to change unique key based on if the table should be historical or current
-MYSQL = MYSQL + unique
+MYSQL = MYSQL + "UNIQUE KEY `ID` (`ID`,`lastModified`));"
 
 #ALTER = "ALTER TABLE " + TABLE_NAME + " ADD UNIQUE INDEX(ID, lastModified);"
 
@@ -102,11 +92,8 @@ for i in ID_list:
 
 for tableid in sensor_list:
 
-  #sql = "SELECT * FROM monitor_data WHERE ID = " + str(tableid) + " OR ParentID =" + str(tableid) + ";"
-  if CURRENT:
-    sql = f"SELECT ID, ParentID, PM2_5Value AS Average, lastModified, AGE FROM {SOURCE_NAME} WHERE id = {str(tableid)} OR ParentID = {str(tableid)} ORDER BY LastModified DESC"
-  else:
-    sql = f"SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, lastModified, AGE FROM {SOURCE_NAME} WHERE id = {str(tableid)} OR ParentID = {str(tableid)} GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
+  
+  sql = f"SELECT ID, ParentID, ROUND(AVG(PM2_5Value), 2) AS Average, lastModified, AGE FROM {SOURCE_NAME} WHERE id = {str(tableid)} OR ParentID = {str(tableid)} GROUP BY YEAR(LastModified), MONTH(LastModified), DAY(LastModified), HOUR(LastModified), ID ORDER BY LastModified"
 
   
       

@@ -92,8 +92,8 @@ for i in ID_list:
 
 for tableid in sensor_list:
 
-  sql = f"SELECT const_data.ID,  const_data.Label, const_data.Region, {SOURCE_NAME}.AChannel, {SOURCE_NAME}.BChannel, const_data.Lat, const_data.Lon, {SOURCE_NAME}.lastModified, {SOURCE_NAME}.AGE FROM {SOURCE_NAME} INNER JOIN const_data ON {SOURCE_NAME}.ID = const_data.ID WHERE const_data.ID = {str(tableid)};"
- 
+  sql = f"SELECT const_data.ID,  const_data.Label, const_data.Region, {SOURCE_NAME}.PM2_5Value, const_data.Lat, const_data.Lon, {SOURCE_NAME}.lastModified, {SOURCE_NAME}.AGE FROM {SOURCE_NAME} INNER JOIN const_data ON {SOURCE_NAME}.ID = const_data.ID WHERE {SOURCE_NAME}.ID = {str(tableid)} OR {SOURCE_NAME}.ParentID = {str(tableid)} ORDER BY LastModified DESC;"
+
   mycursor.execute(sql)
 
   desc = mycursor.description
@@ -104,8 +104,9 @@ for tableid in sensor_list:
 
   print(f"Completed SELECT query for sensor #{str(tableid)}")
 
-  for a in range(0, (len(data))):
+  for a in range(0, (len(data) - 1)):
     i = data[a]
+    b = data[a + 1]
     print(i)
     x = {}
     if int(i["ID"]) == int(tableid):
@@ -115,7 +116,7 @@ for tableid in sensor_list:
       x["Lat"] = i["Lat"]
       x["Lon"] = i["Lon"]
       x["AGE"] = i["AGE"]
-      x["PM2_5Value"] = ((i["AChannel"] + i ["BChannel"]) / 2) 
+      x["PM2_5Value"] = ((i["PM2_5Value"] + b["PM2_5Value"]) / 2) 
       x["lastModified"] = i["lastModified"]
       print("Appending: ", x)
       output_data.append(x)
