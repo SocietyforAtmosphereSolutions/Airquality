@@ -107,7 +107,7 @@ for tableid in sensor_list:
   for a in range(0, (len(data) - 1)):
     i = data[a]
     b = data[a + 1]
-    print(i)
+    #print(i)
     x = {}
     if int(i["ID"]) == int(tableid):
       x["ID"] = i["ID"]
@@ -116,9 +116,17 @@ for tableid in sensor_list:
       x["Lat"] = i["Lat"]
       x["Lon"] = i["Lon"]
       x["AGE"] = i["AGE"]
-      x["PM2_5Value"] = ((i["PM2_5Value"] + b["PM2_5Value"]) / 2) 
+
+      if ((i["PM2_5Value"] - b["PM2_5Value"]) > 50):
+        print("channel discrepancy")
+        x["PM2_5Value"] = b["PM2_5Value"]
+      elif ((b["PM2_5Value"] - i["PM2_5Value"]) > 50):
+        print("channel discrepancy")
+        x["PM2_5Value"] = i["PM2_5Value"]
+      else:
+        x["PM2_5Value"] = ((i["PM2_5Value"] + b["PM2_5Value"]) / 2) 
       x["lastModified"] = i["lastModified"]
-      print("Appending: ", x)
+      #print("Appending: ", x)
       output_data.append(x)
     
 
