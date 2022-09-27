@@ -113,34 +113,118 @@ MONITOR_IDS = total_ids
 ##########################################################################
 PURPLE_AIR_WEBSITE = 'https://www.purpleair.com/json'
 
-# Loop through all the monitor ids, get the json data from purpleair.com 
-# and add that data to a monitor list.
-monitor_array = []
-for id in MONITOR_IDS:
-    url = PURPLE_AIR_WEBSITE + '?show=' + str(id)
-    response = requests.get(url)
-    raw_data = response.text
-    json_data = json.loads(raw_data)
-    if "results" in json_data:
-        monitor_array.extend(json_data["results"])
 
-# Sort the monitor list by ID.
+
+import requests
+
+import json
+
+ 
+
+# Sort method for the monitor list by id.
+
 def sortParam(elem):
-    return elem['ID']
-monitor_array.sort(key=sortParam)
+
+    return elem[0]
+
+ 
+
+# List all the sensor fields that we want to retrieve from Purple Air.
+
+Sensor_Fields = [
+
+    "last_seen",        # AGE (last time the sensor updated data)
+
+    "pm2.5_a",            # pm - Real time or current PM2.5 Value
+
+    "pm2.5_b"
+
+]
+
+ 
+
+# List all the fields in url format in a single string.
+
+field_list_string = "last_modified"
+
+for field in Sensor_Fields:
+
+    field_list_string += "%2C" + field
+
+ 
+
+url = 'https://api.purpleair.com/v1/sensors' + '?fields=' + field_list_string + '&nwlng=-139.06&nwlat=60&selng=-114.03&selat=48.3'
+
+headers = {'content-type': 'application/json', 'X-API-Key': '5901141D-E28E-11EC-8561-42010A800005'}
+
+ 
+
+req = requests.Request('Get',url,headers=headers,data='')
+
+prepared = req.prepare()
+
+ 
+
+s = requests.Session()
+
+response = s.send(prepared)
+
+ 
+
+monitor_list = []
+
+monitor_array = []
+
+ 
+
+if response.status_code != 200:
+
+    print('Request Failed: ' + response.status_code)
+
+    print(response.reason)
+
+else:
+
+    json_data = json.loads(response.text)
+
+    raw_monitor_data = json_data['data']
+
+    raw_monitor_data.sort(key=sortParam)
+
+    for monitor in raw_monitor_data:
+        i = 0
+
+        print("*******************************\n")
+
+        for x in monitor :
+            print(f"Item: #{i}, Value: {x} \n")
+            i += 1
+        
+        print("*******************************\n")
+        print(monitor)
 
 
-# Go through the monitor_array and add the "Stats" to the item dictionary
-# instead of being a sub-dictionary.
-for item in monitor_array:
-    # convert stats text in python dictionary
-    stats = json.loads(item["Stats"])
+    for monitor in raw_monitor_data:
 
-    # Remove the stats item from the dictionary
-    del item["Stats"]
+        monitor_list.append(monitor[0])
 
-    # Insert stats dictionary into back into rest of data.
-    item.update(stats)
+        monitor_dict_a = {}
+        monitor_dict_b = {}
+
+        monitor_dict_a['ID'] = monitor[0]
+        monitor_dict_a['ParentID'] = "null"
+        monitor_dict_a["PM2_5Value"] = monitor[3]
+        monitor_dict_a["AGE"] = 0
+
+        monitor_dict_b['ID'] = (monitor[0] + 1)
+        monitor_dict_b['ParentID'] = monitor[0]
+        monitor_dict_b["PM2_5Value"] = monitor[4]
+        monitor_dict_b["AGE"] = 0
+
+
+
+        monitor_array.append(monitor_dict_a)
+        monitor_array.append(monitor_dict_b)
 
 
 ##########################################################################
